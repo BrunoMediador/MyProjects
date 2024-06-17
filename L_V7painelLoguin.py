@@ -84,9 +84,8 @@ class Login:
 
 class Verificador:
     TESSERACT_CMD = r"caminho do tesseract"
-    SEARCH_TERMS = ["disparo", "alarme 24", "botoeira",
-                    "panico", "falha ac"]  # termos de busca2
-    SEARCH_PRIMARI = ["resolver", "necessário",
+    SEARCH_TERMS = ["termo1", "termo2", "termo3"]  # termos de busca2
+    SEARCH_PRIMARI = ["primariterm1", "primariterm2",
                       "necessário resolver"]  # termos de busca1
     EMAIL_FROM = 'email gmail'
     EMAIL_TO = 'email a ser enviado'
