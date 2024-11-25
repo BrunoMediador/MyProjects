@@ -7,6 +7,8 @@ from psycopg2 import sql
 from datetime import datetime, timedelta
 import csv
 
+__version__ = "1.0.0"
+
 # Paleta de cores suaves e amigáveis
 COR_FUNDO = "#F0F8FF"   # Alice Blue
 COR_BOTAO = "#00BFFF"   # Deep Sky Blue
