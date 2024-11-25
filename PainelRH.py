@@ -1,4 +1,3 @@
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
@@ -17,7 +16,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # URLs para os arquivos no GitHub (raw)
 url_versao_remota = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/versaoPainelRH.text"
 url_codigo_atualizado = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/PainelRH.py"
-
 
 def verificar_atualizacao():
     """
@@ -61,8 +59,6 @@ if __name__ == "__main__":
     verificar_atualizacao()
 
 
-
-
 # Paleta de cores suaves e amigáveis
 COR_FUNDO = "#F0F8FF"   # Alice Blue
 COR_BOTAO = "#00BFFF"   # Deep Sky Blue
@@ -87,7 +83,7 @@ class App:
     def connect_db(self):
         """Conecta ao banco de dados PostgreSQL."""
         return psycopg2.connect(
-            host='',
+             host='',
             database='',
             user='',
             password=''
@@ -96,12 +92,12 @@ class App:
     def fetch_data(self):
         """Busca dados do banco de dados com base nos filtros aplicados."""
         email_filter = self.entry_email_filter.get().strip()
-        start_date_filter = self.date_start_filter.get_date().strftime('%Y-%m-%d') if self.date_start_filter.get_date() else None
-        end_date_filter = self.date_end_filter.get_date().strftime('%Y-%m-%d') if self.date_end_filter.get_date() else None
+        start_date_filter = self.date_start_filter.get_date().strftime(
+            '%Y-%m-%d') if self.date_start_filter.get_date() else None
+        end_date_filter = self.date_end_filter.get_date().strftime(
+            '%Y-%m-%d') if self.date_end_filter.get_date() else None
+        project_filter = self.project_combobox_filter.get()
         type_filter = self.type_combobox_filter.get()
-
-        # Filtro de múltiplos projetos
-        selected_project_ids = [self.project_ids[project] for project in self.project_listbox_filter.get(0, tk.END) if project in self.project_ids]
 
         query = sql.SQL("""
             SELECT id, str_email, str_data, str_project_name, tipo, str_horas, comentario, "item/str_projeto_id", "item/datainsercao", user_insert
@@ -109,22 +105,21 @@ class App:
             WHERE (%s IS NULL OR str_email ILIKE %s)
             AND (%s IS NULL OR str_data >= %s)
             AND (%s IS NULL OR str_data <= %s)
-            AND (%s IS NULL OR "item/str_projeto_id" IN %s) -- Filtro por múltiplos IDs de projeto
+            AND (%s IS NULL OR str_project_name = %s)
             AND (%s IS NULL OR tipo = %s);
         """)
 
         params = (
-            email_filter if email_filter else None,
-            f"%{email_filter}%" if email_filter else None,
+            None if email_filter == "" else email_filter,
+            f"%{email_filter}%",
             start_date_filter,
             start_date_filter,
             end_date_filter,
             end_date_filter,
-            selected_project_ids if selected_project_ids else None,  # Passa a lista de IDs
-            tuple(selected_project_ids) if selected_project_ids else None,  # Tupla para o IN
-            type_filter if type_filter else None,
-            type_filter if type_filter else None,
-
+            None if project_filter == "" else project_filter,
+            None if project_filter == "" else project_filter,
+            None if type_filter == "" else type_filter,
+            None if type_filter == "" else type_filter
         )
 
         try:
@@ -135,7 +130,6 @@ class App:
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao buscar dados: {e}")
             return []
-
 
     def insert_data(self, data):
         """Insere um novo registro no banco de dados."""
@@ -228,18 +222,15 @@ class App:
             self.tree.insert("", tk.END, values=row)
 
     def load_projects(self):
+        """Carrega a lista de projetos no ComboBox."""
         projects = self.fetch_projects()
         self.project_ids = {project[1]: project[0] for project in projects}
         project_names = list(self.project_ids.keys())
-
-        # Preenche o ListBox e o ComboBox de projetos
-        self.project_listbox_filter.delete(0, tk.END)  # Limpa antes de inserir
-        for name in project_names:
-            self.project_listbox_filter.insert(tk.END, name)
-
         self.project_combobox['values'] = project_names
+        self.project_combobox_filter['values'] = project_names
         if project_names:
             self.project_combobox.set(project_names[0])
+            self.project_combobox_filter.set('')
 
     def insert(self):
         """Insere um novo registro com validação de dados."""
@@ -470,9 +461,10 @@ class App:
             filter_frame, date_pattern='yyyy-mm-dd')
         self.date_end_filter.grid(row=2, column=1, padx=10, pady=5)
 
-        tk.Label(filter_frame, text="Projetos:", bg=COR_FUNDO, foreground=COR_TEXTO).grid(row=3, column=0, padx=10, pady=5, sticky="w")
-        self.project_listbox_filter = tk.Listbox(filter_frame, selectmode=tk.MULTIPLE) 
-        self.project_listbox_filter.grid(row=3, column=1, padx=10, pady=5)
+        tk.Label(filter_frame, text="Projeto:", bg=COR_FUNDO,
+                 foreground=COR_TEXTO).grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        self.project_combobox_filter = ttk.Combobox(filter_frame)
+        self.project_combobox_filter.grid(row=3, column=1, padx=10, pady=5)
 
         tk.Label(filter_frame, text="Tipo:", bg=COR_FUNDO,
                  foreground=COR_TEXTO).grid(row=4, column=0, padx=10, pady=5, sticky="w")
