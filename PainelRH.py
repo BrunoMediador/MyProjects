@@ -7,15 +7,21 @@ from datetime import datetime, timedelta
 import csv
 import requests
 import urllib3
+import sys
 
 __version__ = "1.0.0"
+
 
 # Opcional: Suprimir avisos de HTTPS
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Versão atual do programa
+__version__ = "1.0.0"
+
 # URLs para os arquivos no GitHub (raw)
 url_versao_remota = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/versaoPainelRH.text"
 url_codigo_atualizado = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/PainelRH.py"
+
 
 def verificar_atualizacao():
     """
@@ -46,7 +52,7 @@ def baixar_nova_versao():
     try:
         resposta = requests.get(url_codigo_atualizado, verify=False)
         if resposta.status_code == 200:
-            with open("teste.py", "w") as arquivo:
+            with open("Base_adm_levva", "w",encoding="utc-8") as arquivo:
                 arquivo.write(resposta.text)
             print("Atualização concluída! Reinicie o programa para aplicar as mudanças.")
         else:
@@ -57,6 +63,27 @@ def baixar_nova_versao():
 
 if __name__ == "__main__":
     verificar_atualizacao()
+
+
+
+def new():
+    """
+    Verifica se há uma nova versão disponível.
+    """
+    try:
+        resposta = requests.get(url_versao_remota, verify=False)
+        if resposta.status_code == 200:
+            print("Conexão bem-sucedida!")
+            versao_remota = resposta.text.strip()  # Remove espaços ou quebras de linha
+            print(f"Versão remota: {versao_remota}")
+
+            if versao_remota > __version__:
+                sys.exit()
+        else:
+            print(f"Falha na conexão, código de status: {resposta.status_code}")
+
+    except Exception as e:
+        print(f"Ocorreu um erro: {e}")
 
 
 # Paleta de cores suaves e amigáveis
@@ -83,10 +110,10 @@ class App:
     def connect_db(self):
         """Conecta ao banco de dados PostgreSQL."""
         return psycopg2.connect(
-             host='',
-            database='',
-            user='',
-            password=''
+             host='levpsqlue2bilevp.postgres.database.azure.com',
+            database='dev_levva_bi',
+            user='psqlbilevadmin',
+            password='RU#c7bYtmXyM1@*f'
         )
 
     def fetch_data(self):
