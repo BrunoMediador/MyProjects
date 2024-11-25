@@ -7,16 +7,13 @@ from datetime import datetime, timedelta
 import csv
 import requests
 import urllib3
+import os
 import sys
 
 __version__ = "1.0.0"
 
-
 # Opcional: Suprimir avisos de HTTPS
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Versão atual do programa
-__version__ = "1.0.0"
 
 # URLs para os arquivos no GitHub (raw)
 url_versao_remota = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/versaoPainelRH.text"
@@ -25,24 +22,43 @@ url_codigo_atualizado = "https://raw.githubusercontent.com/BrunoMediador/MyProje
 
 def verificar_atualizacao():
     """
-    Verifica se há uma nova versão disponível.
+    Verifica se há uma nova versão disponível e avisa o usuário.
     """
     try:
         resposta = requests.get(url_versao_remota, verify=False)
         if resposta.status_code == 200:
-            print("Conexão bem-sucedida!")
-            versao_remota = resposta.text.strip()  # Remove espaços ou quebras de linha
-            print(f"Versão remota: {versao_remota}")
-
+            versao_remota = resposta.text.strip()
             if versao_remota > __version__:
-                print("Há uma nova versão disponível! Atualizando...")
-                baixar_nova_versao()
-            else:
-                print("Você já está usando a versão mais recente.")
-        else:
-            print(f"Erro ao acessar a URL de versão remota: {resposta.status_code}")
+                popup = tk.Toplevel()
+                popup.title("Atualização Disponível")
+                popup.geometry("300x150")  # Define o tamanho da janela
+                popup.resizable(False, False)  # Impede o redimensionamento
+
+                # Centraliza a janela popup na tela
+                popup.update_idletasks()
+                popup_width = popup.winfo_width()
+                popup_height = popup.winfo_height()
+                screen_width = popup.winfo_screenwidth()
+                screen_height = popup.winfo_screenheight()
+                x = int((screen_width / 2) - (popup_width / 2))
+                y = int((screen_height / 2) - (popup_height / 2))
+                popup.geometry(f"+{x}+{y}")
+
+                message_label = tk.Label(
+                    popup, text="Uma nova versão do programa está disponível.\nPor favor, reinicie o programa para aplicar as mudanças.", wraplength=280, justify="center")  # Ajusta o texto para caber na janela
+                message_label.pack(pady=20)
+
+                def fechar_popup():
+                    popup.destroy()
+                    sys.exit()  # Encerra o programa atual
+
+                popup.after(4000, fechar_popup)  # Fecha após 3 segundos
+                popup.grab_set()  # Impede interação com a janela principal
+                popup.wait_window()  # Aguarda o fechamento do popup
+
     except Exception as e:
         print(f"Erro ao verificar atualização: {e}")
+
 
 
 def baixar_nova_versao():
@@ -52,7 +68,7 @@ def baixar_nova_versao():
     try:
         resposta = requests.get(url_codigo_atualizado, verify=False)
         if resposta.status_code == 200:
-            with open("Base_adm_levva", "w",encoding="utc-8") as arquivo:
+            with open("Base_adm_levva.py", "w") as arquivo:
                 arquivo.write(resposta.text)
             print("Atualização concluída! Reinicie o programa para aplicar as mudanças.")
         else:
@@ -63,27 +79,6 @@ def baixar_nova_versao():
 
 if __name__ == "__main__":
     verificar_atualizacao()
-
-
-
-def new():
-    """
-    Verifica se há uma nova versão disponível.
-    """
-    try:
-        resposta = requests.get(url_versao_remota, verify=False)
-        if resposta.status_code == 200:
-            print("Conexão bem-sucedida!")
-            versao_remota = resposta.text.strip()  # Remove espaços ou quebras de linha
-            print(f"Versão remota: {versao_remota}")
-
-            if versao_remota > __version__:
-                sys.exit()
-        else:
-            print(f"Falha na conexão, código de status: {resposta.status_code}")
-
-    except Exception as e:
-        print(f"Ocorreu um erro: {e}")
 
 
 # Paleta de cores suaves e amigáveis
@@ -110,7 +105,7 @@ class App:
     def connect_db(self):
         """Conecta ao banco de dados PostgreSQL."""
         return psycopg2.connect(
-             host='levpsqlue2bilevp.postgres.database.azure.com',
+            host='levpsqlue2bilevp.postgres.database.azure.com',
             database='dev_levva_bi',
             user='psqlbilevadmin',
             password='RU#c7bYtmXyM1@*f'
