@@ -9,6 +9,7 @@ import requests
 import urllib3
 import os
 import sys
+import webbrowser
 
 __version__ = "1.0.0"
 
@@ -16,9 +17,7 @@ __version__ = "1.0.0"
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # URLs para os arquivos no GitHub (raw)
-url_versao_remota = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/versaoPainelRH.text"
-url_codigo_atualizado = "https://raw.githubusercontent.com/BrunoMediador/MyProjects/refs/heads/main/PainelRH.py"
-
+url_versao_remota = "https://raw.githubusercontent.com/restantedo link da raw"
 
 def verificar_atualizacao():
     """
@@ -45,40 +44,35 @@ def verificar_atualizacao():
                 popup.geometry(f"+{x}+{y}")
 
                 message_label = tk.Label(
-                    popup, text="Uma nova versão do programa está disponível.\nPor favor, reinicie o programa para aplicar as mudanças.", wraplength=280, justify="center")  # Ajusta o texto para caber na janela
-                message_label.pack(pady=20)
+                    popup, text="Uma nova versão do programa está disponível.\nPor favor, acesse o link abaixo para baixar a nova versão.",
+                    wraplength=280, justify="center")  # Ajusta o texto para caber na janela
+                message_label.pack(pady=10)
+
+                # Tornando o link clicável
+                link = "Clique aqui para baixar nova versão"
+                link_label = tk.Label(popup, text=link, fg="blue", cursor="hand2")  # Define a aparência do link
+                link_label.pack(pady=5)
+
+                # Função para abrir o link no navegador
+                def open_link(event):
+                    webbrowser.open("link do arquivo no git ")
+
+                link_label.bind("<Button-1>", open_link)  # Associa o clique ao evento
 
                 def fechar_popup():
                     popup.destroy()
                     sys.exit()  # Encerra o programa atual
 
-                popup.after(4000, fechar_popup)  # Fecha após 3 segundos
+                popup.after(7000, fechar_popup)  # Fecha após 7 segundos
                 popup.grab_set()  # Impede interação com a janela principal
                 popup.wait_window()  # Aguarda o fechamento do popup
 
     except Exception as e:
         print(f"Erro ao verificar atualização: {e}")
 
-
-
-def baixar_nova_versao():
-    """
-    Baixa a nova versão do código e substitui o arquivo atual.
-    """
-    try:
-        resposta = requests.get(url_codigo_atualizado, verify=False)
-        if resposta.status_code == 200:
-            with open("Base_adm_levva.py", "w") as arquivo:
-                arquivo.write(resposta.text)
-            print("Atualização concluída! Reinicie o programa para aplicar as mudanças.")
-        else:
-            print(f"Erro ao baixar nova versão: {resposta.status_code}")
-    except Exception as e:
-        print(f"Erro ao atualizar: {e}")
-
-
 if __name__ == "__main__":
     verificar_atualizacao()
+
 
 
 # Paleta de cores suaves e amigáveis
@@ -105,10 +99,10 @@ class App:
     def connect_db(self):
         """Conecta ao banco de dados PostgreSQL."""
         return psycopg2.connect(
-            host='levpsqlue2bilevp.postgres.database.azure.com',
-            database='dev_levva_bi',
-            user='psqlbilevadmin',
-            password='RU#c7bYtmXyM1@*f'
+            host='',
+            database='',
+            user='',
+            password=''
         )
 
     def fetch_data(self):
